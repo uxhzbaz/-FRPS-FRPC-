@@ -4,6 +4,7 @@
 MODDIR="${0%/*}"
 LOG_DIR="$MODDIR/logs"
 CONF_DIR="$MODDIR/config"
+BIN_DIR="$MODDIR/bin"
 TOKEN_FILE="$CONF_DIR/token.vault"
 DATE_TAG=$(date "+%Y%m%d")
 
@@ -17,6 +18,7 @@ log() {
 # 环境检测
 check_env() {
     log "======== 环境检测报告 ========"
+    log "模块路径: $MODDIR"
     log "设备型号: $(getprop ro.product.model)"
     log "系统版本: Android $(getprop ro.build.version.release)"
     log "内核版本: $(uname -r)"
@@ -27,16 +29,22 @@ check_env() {
     else
         log "❌ curl 不可用，IP 检测可能失败，请安装 curl"
     fi
-    if [ -f "$MODDIR/bin/arm64-v8a/frps" ] && [ -f "$MODDIR/bin/arm64-v8a/frpc" ]; then
-        log "✅ frps 和 frpc 可执行文件存在，权限: $(ls -l $MODDIR/bin/arm64-v8a/frps | awk '{print $1}')"
+    if [ -f "$BIN_DIR/frps" ] && [ -f "$BIN_DIR/frpc" ]; then
+        log "✅ frps 和 frpc 可执行文件存在，路径: $BIN_DIR"
+        log "frps 文件大小: $(ls -lh $BIN_DIR/frps | awk '{print $5}'), 权限: $(ls -l $BIN_DIR/frps | awk '{print $1}')"
+        log "frpc 文件大小: $(ls -lh $BIN_DIR/frpc | awk '{print $5}'), 权限: $(ls -l $BIN_DIR/frpc | awk '{print $1}')"
     else
-        log "❌ 未找到 frps 或 frpc 可执行文件，请检查 $MODDIR/bin/arm64-v8a/ 目录"
+        log "❌ 未找到 frps 或 frpc 可执行文件，请检查 $BIN_DIR/ 目录"
+        log "当前目录内容: $(ls -l $BIN_DIR/ 2>/dev/null || echo '目录不存在')"
         exit 1
     fi
     if [ -r "$CONF_DIR/frps.auto.toml" ] && [ -r "$CONF_DIR/frpc.auto.toml" ]; then
-        log "✅ 配置文件存在且可读，权限: $(ls -l $CONF_DIR/frps.auto.toml | awk '{print $1}')"
+        log "✅ 配置文件存在且可读，路径: $CONF_DIR"
+        log "frps.auto.toml 大小: $(ls -lh $CONF_DIR/frps.auto.toml | awk '{print $5}'), 权限: $(ls -l $CONF_DIR/frps.auto.toml | awk '{print $1}')"
+        log "frpc.auto.toml 大小: $(ls -lh $CONF_DIR/frpc.auto.toml | awk '{print $5}'), 权限: $(ls -l $CONF_DIR/frpc.auto.toml | awk '{print $1}')"
     else
         log "❌ 配置文件不可读，请检查 $CONF_DIR/ 目录权限"
+        log "当前目录内容: $(ls -l $CONF_DIR/ 2>/dev/null || echo '目录不存在')"
         exit 1
     fi
 }
@@ -60,7 +68,7 @@ service_guard() {
     while [ $attempt -le 3 ]; do
         if ! pgrep -f $service >/dev/null; then
             log "🔄 第${attempt}次尝试启动 ${service}，配置: $config"
-            $net_cmd $MODDIR/bin/arm64-v8a/$service -c "$config" >> "$log_file" 2>&1 &
+            $net_cmd $BIN_DIR/$service -c "$config" >> "$log_file" 2>&1 &
             sleep 5
             log "启动后等待 5 秒，检查进程..."
         else
@@ -92,7 +100,7 @@ service_guard() {
     password=$(awk -F= '/password/{print $2}' $CONF_DIR/frps.auto.toml | tr -d ' "')
     log "🌐 公网访问地址: ${ip}:6000"
     log "🕹️ 控制台地址: http://${ip}:7500"
-    log "🗝️ 控制台密码: $password (已记录在 module.prop)"
+    log "🗝️ 控制台密码: $password"
 } >> "$LOG_DIR/service_$DATE_TAG.log" 2>&1
 
 # 启动后台任务
