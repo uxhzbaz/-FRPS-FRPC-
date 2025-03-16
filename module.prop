@@ -1,0 +1,8 @@
+id=frp_ultimate
+name=FRP终极穿透模组
+version=v12.4
+versionCode=20250330
+author=智能穿透引擎
+description=状态：#{status}# | 连接：#{conn}# | 日志：📂/logs
+minMagisk=26000
+updateJson=https://example.com/update.json
