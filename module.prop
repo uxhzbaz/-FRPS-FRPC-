@@ -1,8 +1,7 @@
 id=frp_ultimate
-name=FRP终极穿透模组
-version=v12.4
-versionCode=20250330
-author=智能穿透引擎
-description=状态：#{status}# | 连接：#{conn}# | 日志：📂/logs
-minMagisk=26000
-updateJson=https://example.com/update.json
+name=全自动FRP穿透模块
+version=v7.0
+versionCode=20250316
+author=不知道
+description=FRPS: 运行中 | FRPC: 运行中 | IP地址: 正在检测...
+updateTime=2025-03-16 09:00:00
