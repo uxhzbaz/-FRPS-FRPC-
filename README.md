@@ -1,2 +1,2 @@
-# -FRPS-FRPC-
-梦想编写出(FRPS+FRPC)rooy模块
+# -FRPS+FRPC-
+梦想编写出(FRPS+FRPC)root模块
